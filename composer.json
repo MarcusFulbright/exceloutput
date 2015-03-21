@@ -1,0 +1,22 @@
+{
+    "name": "mbright/excel-output",
+    "description": "Interfaces that will help with outputing data to excel. Concrete classes will use PHPExcel by default.",
+    "require": {
+        "phpoffice/phpexcel": "~1.8"
+    },
+    "require-dev": {
+        "mockery/mockery": "0.9.*"
+    },
+    "authors": [
+        {
+            "name": "Marcus Fulbright",
+            "email": "fulbright.marcus@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload" : {
+         "psr-4": {
+         "Mbright\\ExcelOutput\\": "src/"
+       }
+     }
+}
