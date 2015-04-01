@@ -1,205 +1,73 @@
-# Excel Output
 
-This library will use the (adapter)[http://en.wikipedia.org/wiki/Adapter_pattern] pattern to create an easy way to export data to excel. Out of the box, you will only have access to one adapter which uses (PHPExcel)[https://github.com/PHPOffice/PHPExcel] under the hood. If you prefer some other library over PHPExcel, you will just need to build your own adapter by implementing the correct interfaces. 
+#ExcelOutput
 
-## Data Objects
+This library makes use of the [adapter pattern](http://en.wikipedia.org/wiki/Adapter_pattern) to provide applications with a standard interface when it comes to pushing data into a file format supported by Excel. You can still use your library of choice to actually create the Excel files, like [PHPExcel](https://github.com/PHPOffice/PHPExcel). The `ExcelOutput` interfaces reduce the footprint of boilerplate code required to interact with the excel library of your choice. It will also become easier to switch to a new library, or even to use multiple libraries side by side if you choose. 
 
-Two data objects exist to act as a common way to describe workbooks and the spreadsheets they contain. `ExcelWorkbook` and `ExcelSheet` contain all of the information that describes their excel counterparts, such as data for tables, formatting rules, as well as other bits of meta-data. You can interact with these objects directly, or you can use a simple array structure and the appropriate factory to create these objects.
+## Note about structure
 
-### ExcelWorkbook Options
+`ExcelOutput` uses three data objects to keep track of everything:
 
-ExcelWorkbooks can have the following options:
-
-* Title, string
-* Creator, string
-* Last Modified, DateTime
-* Subject, string
-* Description, string
-* Keywords, array<string>
-* Category, string
-* Company, string
-
-The workbook class contains constants for each of these values. The constants should get used as array keys in an `$options` array used to create an `ExcelWorkbook`. All of them are optional. You can use any of them, none of them, or all of them. Example:
-
-```
-$workBookOptions = array(
-    ExcelWorkbook::META_TITLE => 'Fools I Pity',
-    ExcelWorkbook::META_CREATOR => 'Mr. T',
-    ExcelWorkbook::META_LAST_MODIFIED => new \DateTime(),
-    ExcelWorkbook::META_SUBJECT => 'Suckas',
-    ExcelWorkbook::META_DESCRIPTION => 'Who I pity, how much and why',
-    ExcelWorkbook::META_KEYWORDS => array('fools', 'pity'),
-    ExcelWorkbook::META_CATEGORY => 'Personal',
-    ExcelWorkbook::META_COMPANY => 'A-Team'
-);  
-```
-
-### Sheet Options
-
-Excel Sheets have two types of options, meta-data and formatting rules. The meta-data simply describes the sheet itself. Formating rules get used to control the actual display of the sheet. These rules get applied during the `export` process.
-
-**Meta Data Options**
-
-* Display Name, string (display value for spreadsheet in excel tab)
-* Alias, string (optional, defaults to display name. Used to programatically refer to the spreadsheet).
-
-**Format Options**
-Each format option contains the range of cells that the rule applies to, and the actual value of the rule itself. Ranges formats supported include just cells: A1:A7, entire columns: A:D, or even a single cell: A1.
-
-* Number Format, array<ragnge => format> (see valid number formats)
-* Background Color, array<range => hexCode>
-* Column Width, array<range => int>
-
-**Example:**
-
-```
-$sheetsOption = array(
-    ExcelSheet::META = array(
-        ExcelSheet::DISPLAY_NAME => '',
-        ExcelSheet::ALIAS => ''
-        ),
-    ExcelSheet:FORMAT = array(
-        ExcelSheet::NUMBER_FORMAT => array('A:B' => ExcelSheet:FORMAT_CURRENCY),
-        ExcelSheet::BACKGROUND_COLOR => array('A1' => 'dce8f2'),
-        ExcelSheet::COLUMN_WIDTH => array(A:C => 20)
-    )
-);
-```
-
-## Adapters
-
-All boilerplate code used to interact with a particular library, such as PHPExcel, will exist in an adapter. Adapters **must** implement the `Mbright\ExcelOutput\AdapterInterface`. This will allow applications to use whatever excel wrapper they choose through a common interface. Most applications will probably only use one adapter, though you could use as many as you want. Out of the box you have access to an adapter for (PHPExcel)[https://github.com/PHPOffice/PHPExcel].
-
-## Manager
-
-Your application should use the manager as the single point of contact. Each manager has its own adapter, and knows how to use the provided factories to create `ExcelWorkbook` and `ExcelSheet` objects. You can either manipulate those objects by hand, or give the manager a predefined array structure and have it do all of the hard work for you. If you decide to use a custom adapter, the default manager will work just fine. It merely relies on the `ExcelOutput\AdapterInterface`. Just give the manager whichever adapter you want to use.
+1. `ExcelOutput\ExcelWorkbook`: used to keep track of all information that will go into an excel workbook.
+2. `ExcelOutput\SpreadSheet`: used to keep track of all data and meta-data that will go into a spread sheet. Also contains an array of *FormatRules*.
+3. `ExcelOutput\FormatRule`: keeps track of a column range and format rule to apply. Excel accepts the following ranges
+    * `A1`: single cell
+    * `A1:A8`: range of cells
+    * `A:C`: range of columns 
 
 ## Usage
 
-Create an `ExcelOutput\ExcelWorkbook` object:
-```
-$adapter = new PHPExcelAdapter();
-$manager = new ExcelManager($adapter);
+Generally speaking your workflow will probably look like this:
 
-$workBookOptions = array(
-    ExcelWorkbook::META_TITLE => 'Fools I Pity',
-    ExcelWorkbook::META_CREATOR => 'Mr. T',
-    ExcelWorkbook::META_LAST_MODIFIED => new \DateTime(),
-    ExcelWorkbook::META_SUBJECT => 'Suckas',
-    ExcelWorkbook::META_DESCRIPTION => 'Who I pity, how much and why',
-    ExcelWorkbook::META_KEYWORDS => array('fools', 'pity'),
-    ExcelWorkbook::META_CATEGORY => 'Personal',
-    ExcelWorkbook::META_COMPANY => 'A-Team'
-); 
+* Instantiate your `adapter`
+* Instantiate a `manager` and pass it the `adapter`
+* Create the needed `ExcelOutput\Workbook` objects
+* Create the needed `ExcelOutput\Spreadsheet` objects
+* Attach sheets to the appropriate workbook(s)
+* Export the workbook to the desired format
 
-$workBook = $manager->newWorkBook($options);
-```
+Example:
 
-Create a `ExcelOutupt\ExcelSheet` object:
+```php
+$adapter = new MyAdapter();
+$manager = new MyManager($adapter);
 
-```
-$adapter = new PHPExcelAdapter();
-$manager = new ExcelManager($adapter);
+$workbook = $manager->createWorkbook('My Workbook');
+$sheet = $manager->createSheet('Sheet 1',array(1,2,3,4,5));
 
-$sheetsOption = array(
-    ExcelSheet::META = array(
-        ExcelSheet::DISPLAY_NAME => '',
-        ExcelSheet::ALIAS => ''
-        ),
-    ExcelSheet:FORMAT = array(
-        ExcelSheet::NUMBER_FORMAT => array('A:B' => ExcelSheet:FORMAT_CURRENCY),
-        ExcelSheet::BACKGROUND_COLOR => array('A1' => 'dce8f2'),
-        ExcelSheet::COLUMN_WIDTH => array(A:C => 20)
-    )
-);
-
-$excelSheet = $manager->newSheet($options);
+$manager->addSheetToWorkbook($sheet, $workbook);
+$result = $manager->exportWorkbook($workbook, 'Excel2007');
 ```
 
-Add data to a sheet object:
-
-```
-$data = array(1,2,3,4,5);
-
-$excelSheet->setData($data);
-```
-
-Add a sheet to a WorkBook:
-
-```
-$workBook->addSheet($excelSheet)
-
-//multiple sheets
-$workBook->addSheets(array($excelSheet, $excelSheet2));
-```
-
-Export a WorkBook:
-
-```
-$destination = 'path/to/my/spreadsheet.xlsx';
-$format = 'Excel2007';
-
-$manager->write($workBook, $destination, $format);
-```
-
-Create a workbook and its sheets in one step:
-
-```
-$adapter = new PHPExcelAdapter();
-$manager = new ExcelManager($adapter);
-
-$workBookOptions = array(
-    ExcelWorkbook::META_TITLE => 'Fools I Pity',
-    ExcelWorkbook::META_CREATOR => 'Mr. T',
-    ExcelWorkbook::META_LAST_MODIFIED => new \DateTime(),
-    ExcelWorkbook::META_SUBJECT => 'Suckas',
-    ExcelWorkbook::META_DESCRIPTION => 'Who I pity, how much and why',
-    ExcelWorkbook::META_KEYWORDS => array('fools', 'pity'),
-    ExcelWorkbook::META_CATEGORY => 'Personal',
-    ExcelWorkbook::META_COMPANY => 'A-Team'
-); 
-
-$sheet1Option = array(
-    ExcelSheet::META = array(
-        ExcelSheet::DISPLAY_NAME => 'Sheet 1',
-        ExcelSheet::ALIAS => 'first'
-        ),
-    ExcelSheet:FORMAT = array(
-        ExcelSheet::NUMBER_FORMAT => array('A:B' => ExcelSheet:FORMAT_CURRENCY),
-        ExcelSheet::BACKGROUND_COLOR => array('A1' => 'dce8f2'),
-        ExcelSheet::COLUMN_WIDTH => array(A:C => 20)
-    )
-);
-
-$sheet2Option = array(
-    ExcelSheet::META = array(
-        ExcelSheet::DISPLAY_NAME => 'Sheet 2',
-        ExcelSheet::ALIAS => 'second'
-        ),
-    ExcelSheet:FORMAT = array(
-        ExcelSheet::NUMBER_FORMAT => array('A:B' => ExcelSheet:FORMAT_CURRENCY),
-        ExcelSheet::BACKGROUND_COLOR => array('A1' => 'dce8f2'),
-        ExcelSheet::COLUMN_WIDTH => array(A:C => 20)
-    )
-);
-$sheetsOptions = array($sheet1Option, $shet2Optione);
-
-$data = array(1,2,3,4,5);
-$data2 = array(6,7,8,9,10);
-$dataForSheets = array($data, $data2);
-
-$workBook = $manager->newWorkBookWithData($data, $workBookOptions, $sheetOptions);
-```
-
-## PHPExcel Adapter
-
-PHPExcel functions by creating a representation of your spreadsheet in memory. It offers several (caching strategies)[https://github.com/PHPOffice/PHPExcel/blob/develop/Documentation/markdown/Overview/04-Configuration-Settings.md] that you can use to better fit your needs. 
-
-How to set the cache strategy:
-
-```
-$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_in_memory;
-$adapter = new PHPExcelAdapter($cacheMeethod);
-```
+>in this example `$result` could be a number of things. Some excel libraries such as PHPExcel use their own object to represent a workbook. In that case, a `PHPExcel` objct would get returned. Other libraries might return a file pointer, or simply a string that is the file path. Make sure to understand how your particular adapter works.
 
 
+### Make your own adapter
+
+The majority of your boilerplate code will probably go in the `adapter`. All adapers must implement the `ExcelOutput\Adapters\ExcelAdapterInterface`. This interface requires the following methods:
+
+* `getFormats()`: should return an array of all supported formats
+* `exportToFormat(\ExcelOutput\ExcelWorkbok $workbook, $format, $write = true)`: actually performs the export. Most of the time this will trigger a write to the appropriate file path. However, setting `$write` to false will bypass the write and perform whatever else the given adapter does.
+* `supportsFormat($format)`: Simply returns a boolean that indicates if the given format is supported
+
+### Make a Manager
+
+The `manger` is the class applications interact with. You can add any helper methods or extra boilerplate code into the manager. The manager must implement the `ExcelOutput\Manager\ExcelManagerInterface` which brings the following restrictions:
+
+* `__construct(ExcelOutput\Adapters\ExcelAdaperInterface $adapter, ExcelOutput\Formattters\ExcelFormaterInterface $formatter = null)`: this ensures that the manager will always have access to an adapter and that a `formatter` can be optionally supplied.
+* `newWorkbook($name, array $properties = null)`: creates a new `ExcelOutput\Workbook` object and sets the provided properties.
+* `newSheet(array $data, array $prpoerties = array)`: creates a new `ExcelOutput\ExcelSheet` $object with the given data and sets the provided properties.
+* `formatSheet(ExcelOutput\ExcelSheet $sheet)`: applies format rules found in the given `$sheet`
+* `exportToFormat(ExcelOutput\ExcelWorkbook, $format, $write = true)`: actually performs the export. Most of the time this will trigger a write to the appropriate file path. However, setting `$write` to false will bypass the write and perform whatever else the given adapter does.
+* `getFormats()`: returns an array of all supported formats.
+* `addSheetToWorkbook(ExcelOutput\ExcelSheet $sheet, ExcelOutput\ExcelWorkbook $workbook)`: handles adding a sheet to a work book.
+* `supportsFormat($format)`: Simply returns a boolean that indicates if the given format is supported
+
+### Make a formatter (optional)
+
+Sometimes the code required to add format rules to spreadsheets and workbooks can live in the `adapter` or the `manager`. In other cases, it makes more sense to create a `formatter` to handle all of this logic. This will most likely be dictated by how the underpinning library works. Using a `formater` class to handle applying format rules is entirely up to you.
+
+Should you want to build one, it must use the `ExcelOutput\Formatters\ExcelFormatterInterface` which guarntees the following behavior:
+
+* `applyRules(ExcelOutput\SpreadSheet $sheet)`: applies the rules that apply to the given $sheet
+
+> If you need to inject an object from another library, like a PHPExcel,you can use the formatter's constructor or make a setter for it.
