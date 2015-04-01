@@ -14,14 +14,14 @@ namespace mbright\ExcelOutput;
 class ExcelWorkbook 
 {
     /**
-     * Used to keep track of all SpreadSheet objects associated with the workbook
+     * Used to keep track of all SpreadSheet objects associated with the workbook.
      *
      * @var array
      */
     protected $sheets;
 
     /**
-     * Repository for all extra meta data
+     * Repository for all extra meta data.
      *
      * @var Parambag
      */
@@ -43,7 +43,7 @@ class ExcelWorkbook
     /**
      * Internal validation method for the $sheets array.
      *
-     * Ensures that all objects in the given $sheets array are instnaceof SpreadSheet.
+     * Ensures that all objects in the given $sheets array are instnaceof SpreadSheet
      *
      * @param array $arr
      * @return bool
@@ -70,7 +70,7 @@ class ExcelWorkbook
     }
 
     /**
-     * Adds a SpreadSheet object to the workbook
+     * Adds a SpreadSheet object to the workbook.
      *
      * @param SpreadSheet $sheet SpreadSheet object to set
      */
@@ -80,7 +80,7 @@ class ExcelWorkbook
     }
 
     /**
-     * Returns the Parambag object that contains any meta data associated with the workbook
+     * Returns the Parambag object that contains any meta data associated with the workbook.
      *
      * @return Parambag
      */

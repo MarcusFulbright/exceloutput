@@ -43,7 +43,7 @@ $result = $manager->exportWorkbook($workbook, 'Excel2007');
 
 ### Make your own adapter
 
-The majority of your boilerplate code will probably go in the `adapter`. All adapers must implement the `ExcelOutput\Adapters\ExcelAdapterInterface`. This interface requires the following methods:
+The majority of your boilerplate code will probably go in the `adapter`. All adapers must implement the `ExcelOutput\ExcelAdapterInterface`. This interface requires the following methods:
 
 * `getFormats()`: should return an array of all supported formats
 * `exportToFormat(\ExcelOutput\ExcelWorkbok $workbook, $format, $write = true)`: actually performs the export. Most of the time this will trigger a write to the appropriate file path. However, setting `$write` to false will bypass the write and perform whatever else the given adapter does.
@@ -51,15 +51,15 @@ The majority of your boilerplate code will probably go in the `adapter`. All ada
 
 ### Make a Manager
 
-The `manger` is the class applications interact with. You can add any helper methods or extra boilerplate code into the manager. The manager must implement the `ExcelOutput\Manager\ExcelManagerInterface` which brings the following restrictions:
+The `manger` is the class applications interact with. You can add any helper methods or extra boilerplate code into the manager. The manager must implement the `ExcelOutput\ExcelManagerInterface` which brings the following restrictions:
 
-* `__construct(ExcelOutput\Adapters\ExcelAdaperInterface $adapter, ExcelOutput\Formattters\ExcelFormaterInterface $formatter = null)`: this ensures that the manager will always have access to an adapter and that a `formatter` can be optionally supplied.
-* `newWorkbook($name, array $properties = null)`: creates a new `ExcelOutput\Workbook` object and sets the provided properties.
-* `newSheet(array $data, array $prpoerties = array)`: creates a new `ExcelOutput\ExcelSheet` $object with the given data and sets the provided properties.
-* `formatSheet(ExcelOutput\ExcelSheet $sheet)`: applies format rules found in the given `$sheet`
+* `__construct(ExcelOutput\ExcelAdaperInterface $adapter, ExcelOutput\ExcelFormaterInterface $formatter = null)`: this ensures that the manager will always have access to an adapter and that a `formatter` can be optionally supplied.
+* `newWorkbook(array $sheets, Parambag $meta = null)`: creates a new `ExcelOutput\Workbook` object and sets the sheets and any provided meta-data.
+* `newSheet(array $data, Parambag $meta = null)`: creates a new `ExcelOutput\SpreadSheet` object with the given data and meta-data
+* `formatSheet(ExcelOutput\SpreadSheet $sheet)`: applies format rules found in the given `$sheet`
 * `exportToFormat(ExcelOutput\ExcelWorkbook, $format, $write = true)`: actually performs the export. Most of the time this will trigger a write to the appropriate file path. However, setting `$write` to false will bypass the write and perform whatever else the given adapter does.
 * `getFormats()`: returns an array of all supported formats.
-* `addSheetToWorkbook(ExcelOutput\ExcelSheet $sheet, ExcelOutput\ExcelWorkbook $workbook)`: handles adding a sheet to a work book.
+* `addSheetToWorkbook(ExcelOutput\SpreadSheet $sheet, ExcelOutput\ExcelWorkbook $workbook)`: handles adding a sheet to a work book.
 * `supportsFormat($format)`: Simply returns a boolean that indicates if the given format is supported
 
 ### Make a formatter (optional)

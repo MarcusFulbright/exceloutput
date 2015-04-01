@@ -3,6 +3,9 @@ namespace mbright\ExcelOutput;
 
 /**
  * Class Parambag
+ *
+ * Simple \ArrayAccess class to shove key value pairs into.
+ *
  * @package mbright\ExcelOutput
  */
 class Parambag implements \ArrayAccess
@@ -78,7 +81,7 @@ class Parambag implements \ArrayAccess
     }
 
     /**
-     * Sets a particular key and value
+     * Sets a particular key and value.
      *
      * @param string $key
      * @param mixed  $value
@@ -91,7 +94,7 @@ class Parambag implements \ArrayAccess
     }
 
     /**
-     * Unset() a particular key
+     * Unset() a particular key.
      *
      * @param string $key
      * @throws \LogicException

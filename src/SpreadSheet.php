@@ -22,14 +22,14 @@ class SpreadSheet
     protected $data;
 
     /**
-     * Extra metadata that describes the spreadsheet
+     * Extra metadata that describes the spreadsheet.
      *
      * @var \mbright\ExcelOutput\Parambag
      */
     protected $meta;
 
     /**
-     * Array of FormatRules that apply to the spreadsheet
+     * Array of FormatRules that apply to the spreadsheet.
      *
      * @var array
      */
@@ -54,7 +54,7 @@ class SpreadSheet
     }
 
     /**
-     * Used to validate that all array items are instances of FormatRule
+     * Used to validate that all array items are instances of FormatRule.
      *
      * @param array $arr
      * @return bool
@@ -71,7 +71,7 @@ class SpreadSheet
     }
 
     /**
-     * Returns spreadsheet's data
+     * Returns spreadsheet's data.
      *
      * @return array
      */
@@ -81,7 +81,7 @@ class SpreadSheet
     }
 
     /**
-     * Set the spreadsheet's data
+     * Set the spreadsheet's data.
      *
      * @param array $data
      */
@@ -91,7 +91,7 @@ class SpreadSheet
     }
 
     /**
-     * Get associated metadata
+     * Get associated metadata.
      *
      * @return Parambag
      */
@@ -101,7 +101,7 @@ class SpreadSheet
     }
 
     /**
-     * Set the associated metadata
+     * Set the associated metadata.
      *
      * @param $meta
      */

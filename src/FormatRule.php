@@ -4,7 +4,9 @@ namespace mbright\ExcelOutput;
 /**
  * Class FormatRule
  *
- * Used to store a set of format rules
+ * Used to a format rule.
+ *
+ * Keeps track of the range to apply the rule to, and the value of the rule.
  *
  * @package mbright\ExcelOutput
  */
