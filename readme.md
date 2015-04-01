@@ -38,12 +38,12 @@ $manager->addSheetToWorkbook($sheet, $workbook);
 $result = $manager->exportWorkbook($workbook, 'Excel2007');
 ```
 
->in this example `$result` could be a number of things. Some excel libraries such as PHPExcel use their own object to represent a workbook. In that case, a `PHPExcel` objct would get returned. Other libraries might return a file pointer, or simply a string that is the file path. Make sure to understand how your particular adapter works.
+>in this example `$result` could be a number of things. Some excel libraries such as PHPExcel use their own object to represent a workbook. In that case, a `PHPExcel` object would get returned. Other libraries might return a file pointer, or simply a string that is the file path. Make sure to understand how your particular adapter works.
 
 
 ### Make your own adapter
 
-The majority of your boilerplate code will probably go in the `adapter`. All adapers must implement the `ExcelOutput\ExcelAdapterInterface`. This interface requires the following methods:
+The majority of your boilerplate code will probably go in the `adapter`. All adapters must implement the `ExcelOutput\ExcelAdapterInterface`. This interface requires the following methods:
 
 * `getFormats()`: should return an array of all supported formats
 * `exportToFormat(\ExcelOutput\ExcelWorkbok $workbook, $format, $write = true)`: actually performs the export. Most of the time this will trigger a write to the appropriate file path. However, setting `$write` to false will bypass the write and perform whatever else the given adapter does.
@@ -64,10 +64,91 @@ The `manger` is the class applications interact with. You can add any helper met
 
 ### Make a formatter (optional)
 
-Sometimes the code required to add format rules to spreadsheets and workbooks can live in the `adapter` or the `manager`. In other cases, it makes more sense to create a `formatter` to handle all of this logic. This will most likely be dictated by how the underpinning library works. Using a `formater` class to handle applying format rules is entirely up to you.
+Sometimes the code required to add format rules to spreadsheets and workbooks can live in the `adapter` or the `manager`. In other cases, it makes more sense to create a `formatter` to handle all of this logic. This will most likely be dictated by how the underpinning library works. Using a `formatter` class to handle applying format rules is entirely up to you.
 
-Should you want to build one, it must use the `ExcelOutput\Formatters\ExcelFormatterInterface` which guarntees the following behavior:
+Should you want to build one, it must use the `ExcelOutput\Formatters\ExcelFormatterInterface` which guarantees the following behavior:
 
 * `applyRules(ExcelOutput\SpreadSheet $sheet)`: applies the rules that apply to the given $sheet
 
 > If you need to inject an object from another library, like a PHPExcel,you can use the formatter's constructor or make a setter for it.
+
+## PHPExcel Integration
+
+Out of the box, you can start working with `PHPExcel` right away. The included `ExcelOutput\PHPExcel` folder has an adapter, formatter, and an abstract manager you can use. Some things to note when using the PHPExcel file:
+
+### Caching strategies
+
+PHPExcel supports the use of several different caching strategies. You can read about the specific strategies themselves in the PHPExcel documentation. List of available caching strategies:
+
+* Memory: `PHPExcel_CachedObjectStorageFactory::cache_in_memory`   (**default**)
+* Memory Gzip: `PHPExcel_CachedObjectStorageFactory::cache_in_memory_gzip`
+* Memory Serialized: `PHPExcel_CachedObjectStorageFactory::cache_in_memory_serialized`
+* Memory IgBinary: `PHPExcel_CachedObjectStorageFactory::cache_igbinary`
+* DiscISAM: `PHPExcel_CachedObjectStorageFactory::cache_to_discISAM`
+* APC: `PHPExcel_CachedObjectStorageFactory::cache_to_apc`
+* Memcache: `PHPExcel_CachedObjectStorageFactory::cache_to_memcache`
+* PHPTemp: `PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp`
+* Wincache: `PHPExcel_CachedObjectStorageFactory::cache_to_wincache`
+* sqlite: `PHPExcel_CachedObjectStorageFactory::cache_to_sqlite`
+* sqlite3: `PHPExcel_CachedObjectStorageFactory::cache_to_sqlite3`
+
+To set a caching method:
+
+```php
+$adapter = new PHPExcelAdapter();
+$manager = new PHPExcelManager($adapter);
+
+$memcacheOptions = array(
+    'memcachedServer' => 'localhost',
+    'memcachePort'    => 11211,
+    'cacheTime'       => 600 
+);
+$cacheStrategy = array(
+    PHPExcel_CachedObjectStorageFactory::cache_to_memcache => $memcacheOptions
+
+$manger->setCacheStrategy($cacheStrategy)
+
+```
+>If the strategy you choose requires extra options, like Memcache, just include the options array as the value and the strategy as the key. If you do not need extra options, just include the strategy as the value
+
+### Valid Meta-Data
+The following objects can handle the given constants as keys and expect a the given input value for the meta-data `Parambag`:
+
+**ExcelWorkbook**
+* `ExcelOutput\PHPExcelAdapter::Creator` (string)
+* `ExcelOutput\PHPExcelAdapter::LastModifiedBy` (string)
+* `ExcelOutput\PHPExcelAdapter::Title` (string)
+* `ExcelOutput\PHPExcelAdapter::Subject` (string)
+* `ExcelOutput\PHPExcelAdapter::Description` (string)
+* `ExcelOutput\PHPExcelAdapter::Keywords` (array<string>)
+* `ExcelOutput\PHPExcelAdapter::Category` (string)
+
+**SpreadSheet**
+* `ExcelOutput\PHPExcelAdapter::Title` (string)
+
+**Format Rules**
+All constants in the following classes are supported:
+
+* `PHPExcel_Style_Alignment`
+* `PHPExcel_Style_Border`
+* `PHPExcel_Style_Borders`
+* `PHPExcel_Style_Color`
+* `PHPExcel_Style_Fill`
+* `PHPExcel_Style_Font`
+* `PHPExcel_Style_NumberFormat`
+
+Additionally the following can be used to set width and height:
+*  `ExcelOutput\PHPExcelAdapter::COLUMN_WIDTH` => array(column<string> => width<int>)
+*  `ExcelOutput\PHPExcelAdapter::RowHeight` => array(row<int> => height<int>)
+*  `ExcelOutput\PHPExcelAdapter::DEFAULT_COLUMN_WIDTH` => width <int>
+*  `ExcelOutput\PHPExcelAdapter::DEFAULT_ROW_HEIGHT` => height<int>
+
+### PHPExcel Supported File Formats
+* .xlsx: `ExcelOutput\PHPExcelAdapter::XLSX`
+* .xls: `ExcelOutput\PHPExcelAdapter::XLS`
+* .csv: `Exceloutput\PHPExcelAdapter::CSV`
+
+# to-do's
+* add conditional formating support for PHPExcel. needs its own data object in ExcelOutput
+* add support for PHPExcel calculation engine
+* add support for formulas

@@ -36,7 +36,6 @@ class ExcelWorkbook
         if ($this->validateSheets($sheets)) {
             $this->sheets = $sheets;
         }
-
         $this->meta = ($meta != null ? $meta : new Parambag());
     }
 
