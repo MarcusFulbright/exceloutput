@@ -9,10 +9,11 @@ This library makes use of the [adapter pattern](http://en.wikipedia.org/wiki/Ada
 
 1. `ExcelOutput\ExcelWorkbook`: used to keep track of all information that will go into an excel workbook.
 2. `ExcelOutput\SpreadSheet`: used to keep track of all data and meta-data that will go into a spread sheet. Also contains an array of *FormatRules*.
-3. `ExcelOutput\FormatRule`: keeps track of a column range and format rule to apply. Excel accepts the following ranges
+3. `ExcelOutput\FormatRule`: keeps track of a column range and format rule to apply. The format rule is simply an array that will get passed through. PHPExcel's documentation details how to create a $style array. Different libraries might require something else Excel accepts the following ranges
     * `A1`: single cell
     * `A1:A8`: range of cells
-    * `A:C`: range of columns 
+    * `A:C`: range of columns
+*Please note that it is best to only have one FormatRule object per range.*
 
 ## Usage
 
@@ -54,8 +55,8 @@ The majority of your boilerplate code will probably go in the `adapter`. All ada
 The `manger` is the class applications interact with. You can add any helper methods or extra boilerplate code into the manager. The manager must implement the `ExcelOutput\ExcelManagerInterface` which brings the following restrictions:
 
 * `__construct(ExcelOutput\ExcelAdaperInterface $adapter, ExcelOutput\ExcelFormaterInterface $formatter = null)`: this ensures that the manager will always have access to an adapter and that a `formatter` can be optionally supplied.
-* `newWorkbook(array $sheets, Parambag $meta = null)`: creates a new `ExcelOutput\Workbook` object and sets the sheets and any provided meta-data.
-* `newSheet(array $data, Parambag $meta = null)`: creates a new `ExcelOutput\SpreadSheet` object with the given data and meta-data
+* `newWorkbook(array $sheets, array $meta = null)`: creates a new `ExcelOutput\Workbook` object and sets the sheets and any provided meta-data.
+* `newSheet(array $data, array $meta = null)`: creates a new `ExcelOutput\SpreadSheet` object with the given data and meta-data
 * `formatSheet(ExcelOutput\SpreadSheet $sheet)`: applies format rules found in the given `$sheet`
 * `exportToFormat(ExcelOutput\ExcelWorkbook, $format, $write = true)`: actually performs the export. Most of the time this will trigger a write to the appropriate file path. However, setting `$write` to false will bypass the write and perform whatever else the given adapter does.
 * `getFormats()`: returns an array of all supported formats.
@@ -68,13 +69,24 @@ Sometimes the code required to add format rules to spreadsheets and workbooks ca
 
 Should you want to build one, it must use the `ExcelOutput\Formatters\ExcelFormatterInterface` which guarantees the following behavior:
 
-* `applyRules(ExcelOutput\SpreadSheet $sheet)`: applies the rules that apply to the given $sheet
+* `applyRules(ExcelOutput\SpreadSheet $sheet, $target = null`: applies the rules that apply to the given $sheet
 
-> If you need to inject an object from another library, like a PHPExcel,you can use the formatter's constructor or make a setter for it.
+> If you need to inject an object from another library, like a PHPExcel,you can pass that object in as the $target.
 
 ## PHPExcel Integration
 
 Out of the box, you can start working with `PHPExcel` right away. The included `ExcelOutput\PHPExcel` folder has an adapter, formatter, and an abstract manager you can use. Some things to note when using the PHPExcel file:
+
+### PHPExcel Formatter / Adapter
+
+Because of the way PHPExcel works, an instance of `ExcelOutput\PHPExcel\PHPExcelFormatter` is required by the adapter. PHPExcel itself requires the proprietary PHPExcel object to get instantiated before applying format rules. This means that the `ExcelOutput\PHPExcel\PHPExcelAdapter` **requires** the formatter. Additionally, the `ExcelOutput\PHPExcel\PHPExcelManager` also **requires** a formatter to fulfill all of its obligations Simply instantiate the formatter first and pass it to both constructors:
+
+```php
+$formatter = new PHPExcelFormatter();
+$adapter = new PHPExcelAdapter($formatter);
+// you can use a different formatter instance, or another object that implements the correct interface if you choose. 
+$manager = new PHPExcelManager($adapter, $formatter);
+```
 
 ### Caching strategies
 
@@ -112,36 +124,22 @@ $manger->setCacheStrategy($cacheStrategy)
 >If the strategy you choose requires extra options, like Memcache, just include the options array as the value and the strategy as the key. If you do not need extra options, just include the strategy as the value
 
 ### Valid Meta-Data
-The following objects can handle the given constants as keys and expect a the given input value for the meta-data `Parambag`:
+The following objects can handle the given constants as keys and expect a the given input value for the meta-data array:
 
 **ExcelWorkbook**
-* `ExcelOutput\PHPExcelAdapter::Creator` (string)
-* `ExcelOutput\PHPExcelAdapter::LastModifiedBy` (string)
-* `ExcelOutput\PHPExcelAdapter::Title` (string)
-* `ExcelOutput\PHPExcelAdapter::Subject` (string)
-* `ExcelOutput\PHPExcelAdapter::Description` (string)
-* `ExcelOutput\PHPExcelAdapter::Keywords` (array<string>)
-* `ExcelOutput\PHPExcelAdapter::Category` (string)
+* `ExcelOutput\PHPExcelAdapter::CREATOR` (string)
+* `ExcelOutput\PHPExcelAdapter::LAST_MODIFIED_BY` (string)
+* `ExcelOutput\PHPExcelAdapter::TITLE` (string)
+* `ExcelOutput\PHPExcelAdapter::SUBJECT` (string)
+* `ExcelOutput\PHPExcelAdapter::DESCRIPTION` (string)
+* `ExcelOutput\PHPExcelAdapter::KEYWORDS` (array<string>)
+* `ExcelOutput\PHPExcelAdapter::CATEGORIES` (array<string>)
 
 **SpreadSheet**
 * `ExcelOutput\PHPExcelAdapter::Title` (string)
 
 **Format Rules**
-All constants in the following classes are supported:
-
-* `PHPExcel_Style_Alignment`
-* `PHPExcel_Style_Border`
-* `PHPExcel_Style_Borders`
-* `PHPExcel_Style_Color`
-* `PHPExcel_Style_Fill`
-* `PHPExcel_Style_Font`
-* `PHPExcel_Style_NumberFormat`
-
-Additionally the following can be used to set width and height:
-*  `ExcelOutput\PHPExcelAdapter::COLUMN_WIDTH` => array(column<string> => width<int>)
-*  `ExcelOutput\PHPExcelAdapter::RowHeight` => array(row<int> => height<int>)
-*  `ExcelOutput\PHPExcelAdapter::DEFAULT_COLUMN_WIDTH` => width <int>
-*  `ExcelOutput\PHPExcelAdapter::DEFAULT_ROW_HEIGHT` => height<int>
+ExcelOutput expects all format rules to be construed as a `$styleArray` which is defined in PHPExcel's documentation.
 
 ### PHPExcel Supported File Formats
 * .xlsx: `ExcelOutput\PHPExcelAdapter::XLSX`
@@ -149,6 +147,7 @@ Additionally the following can be used to set width and height:
 * .csv: `Exceloutput\PHPExcelAdapter::CSV`
 
 # to-do's
-* add conditional formating support for PHPExcel. needs its own data object in ExcelOutput
+* add conditional formating support for PHPExcel
+* add support for additional formating stuff not in a PHPExcel Style Array.
 * add support for PHPExcel calculation engine
 * add support for formulas
