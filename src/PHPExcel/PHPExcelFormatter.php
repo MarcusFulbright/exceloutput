@@ -20,11 +20,16 @@ class PHPExcelFormatter implements  ExcelFormatterInterface
         $title = (isset($sheet->getMeta()[PHPExcelAdapter::TITLE])) ? $sheet->getMeta()[PHPExcelAdapter::TITLE] : null;
         $target = new \PHPExcel_Worksheet($title);
         $target->fromArray($sheet->getData());
-
         /** @var FormatRule $rule */
         foreach ($sheet->getFormatRules() as $rule) {
             $range = $this->sanitizeColumns($target, $rule->getRange());
-            $target->getStyle($range)->applyFromArray($rule->getRules());
+            switch (true) {
+                case ($rule->getType() === 'style'):
+                    $target->getStyle($range)->applyFromArray($rule->getRules());
+                    break;
+                case ($rule->getType() === 'numFormat'):
+                    $target->getStyle($range)->getNumberFormat()->setFormatCode();
+            }
         }
         return $target;
     }

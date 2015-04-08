@@ -88,6 +88,13 @@ $adapter = new PHPExcelAdapter($formatter);
 $manager = new PHPExcelManager($adapter, $formatter);
 ```
 
+### PHPExcel Format Rules
+
+PHPExcel uses different methods to set different style rules. As a result, the `Excloutput\PHPExcel\PHPExcelFormatter` expects each format rule to have the correct `$type` attribute. To make things easier, a `ExcelOutput\PHPExcel\FormatRuleFactory` was included that allows you to create correctly configured formatting rules. Each method accepts a range and style argument. In all cases, the range must be a valid Excel column / cell range. The style argument must be applicable to the context of the called method:
+
+* `createStyleRule($range, $style)`: $style is a valid $styleArray as defined in PHPExcel's Documentation
+* `createNumFormatRule($range, $style)`: $style is a valid number format from the *PHPExcel_STYLE_NUMBERFORMAT* class.
+
 ### Caching strategies
 
 PHPExcel supports the use of several different caching strategies. You can read about the specific strategies themselves in the PHPExcel documentation. List of available caching strategies:

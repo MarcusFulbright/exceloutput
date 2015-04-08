@@ -7,7 +7,8 @@ namespace mbright\ExcelOutput;
  * Contains the cell range and the format rules to apply to that range.
  *
  * The exact contents of the $rules array depends on which excel library is used. PHPExcel expects a style array as
- * defined in its documentation.
+ * defined in its documentation. The type property can optionally be used for anything that a particular adapter or
+ * formatter might require.
  *
  * @package mbright\ExcelOutput
  */
@@ -18,6 +19,9 @@ class FormatRule
 
     /** @var array  */
     protected $rules;
+
+    /** @var mixed */
+    protected $type;
 
     /**
      * @param null $range
@@ -59,5 +63,15 @@ class FormatRule
     public function setRules($rules)
     {
         $this->rules = $rules;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 }
