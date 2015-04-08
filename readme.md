@@ -145,9 +145,6 @@ The following objects can handle the given constants as keys and expect a the gi
 **SpreadSheet**
 * `ExcelOutput\PHPExcelAdapter::Title` (string)
 
-**Format Rules**
-ExcelOutput expects all format rules to be construed as a `$styleArray` which is defined in PHPExcel's documentation.
-
 ### PHPExcel Supported File Formats
 * .xlsx: `ExcelOutput\PHPExcelAdapter::XLSX`
 * .xls: `ExcelOutput\PHPExcelAdapter::XLS`
