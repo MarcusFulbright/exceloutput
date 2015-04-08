@@ -17,8 +17,12 @@ interface ExcelFormatterInterface
     /**
      * Applies the format rules associated with the given SpreadSheet.
      *
-     * @param $sheet
+     * In some cases, you will need to apply the format rules to a particular target. In those cases, a $target can get
+     * passed in.
+     *
+     * @param SpreadSheet $sheet
+     * @param null $target
      * @return mixed
      */
-    public function applyRules(SpreadSheet $sheet);
+    public function applyRules(SpreadSheet $sheet, $target = null);
 }

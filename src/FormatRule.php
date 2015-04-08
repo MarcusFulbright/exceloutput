@@ -2,36 +2,31 @@
 namespace mbright\ExcelOutput;
 
 /**
- * Class FormatRule
+ * Class FormatRules
  *
- * Used to a format rule.
+ * Contains the cell range and the format rules to apply to that range.
  *
- * Keeps track of the range to apply the rule to, and the value of the rule.
+ * The exact contents of the $rules array depends on which excel library is used. PHPExcel expects a style array as
+ * defined in its documentation.
  *
  * @package mbright\ExcelOutput
  */
 class FormatRule
 {
-    /**
-     * @var string Range to apply the rule to
-     */
+    /** @var null|string  */
     protected $range;
 
-    /**
-     * @var string Rule to apply
-     */
-    protected $rule;
+    /** @var array  */
+    protected $rules;
 
     /**
-     * @param string $range
-     * @param string $rule
+     * @param null $range
+     * @param array $rules
      */
-    public function __construct($range = null, $rule = null)
+    public function __construct($range = null, $rules = array())
     {
-        if ($range != null && $rule != null) {
-            $this->range = $range;
-            $this->rule = $rule;
-        }
+        $this->range = $range;
+        $this->rules = $rules;
     }
 
     /**
@@ -43,7 +38,7 @@ class FormatRule
     }
 
     /**
-     * @param $range
+     * @param null|string $range
      */
     public function setRange($range)
     {
@@ -51,18 +46,18 @@ class FormatRule
     }
 
     /**
-     * @return null|string
+     * @return array
      */
-    public function getRule()
+    public function getRules()
     {
-        return $this->rule;
+        return $this->rules;
     }
 
     /**
-     * @param $rule
+     * @param array $rules
      */
-    public function setRule($rule)
+    public function setRules($rules)
     {
-        $this->rule = $rule;
+        $this->rules = $rules;
     }
 }

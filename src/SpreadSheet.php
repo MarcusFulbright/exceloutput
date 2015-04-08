@@ -8,7 +8,7 @@ namespace mbright\ExcelOutput;
  *
  * The actual data that goes into the spreadsheet must be in array form. The keys will not get used. Each entry in the
  * array represents an entry. The first entry ($data[0]) should be any desired headers. Extra metadata can get stored in
- * a Parambag on the $meta property. Associated formatRules can be stored in an array of FormatRule objects.
+ * a array on the $meta property. Associated formatRules can be stored in an array of FormatRules objects.
  *
  * @package mbright\ExcelOutput
  */
@@ -24,7 +24,7 @@ class SpreadSheet
     /**
      * Extra metadata that describes the spreadsheet.
      *
-     * @var \mbright\ExcelOutput\Parambag
+     * @var array
      */
     protected $meta;
 
@@ -36,38 +36,15 @@ class SpreadSheet
     protected $formatRules;
 
     /**
-     * @param array    $data
-     * @param Parambag $meta
-     * @param array    $formatRules
+     * @param array $data
+     * @param array $meta
+     * @param array $formatRules
      */
-    public function __construct(array $data = null, Parambag $meta = null, array $formatRules = null)
+    public function __construct(array $data = null, array $meta = null, array $formatRules = null)
     {
         if ($data != null) {
             $this->data = $data;
         }
-
-        if ($this->validateFormatRules($formatRules)) {
-            $this->formatRules = $formatRules;
-        }
-
-        $this->meta = ($meta != null ? $meta : new Parambag());
-    }
-
-    /**
-     * Used to validate that all array items are instances of FormatRule.
-     *
-     * @param array $arr
-     * @return bool
-     */
-    protected function validateFormatRules(array $arr)
-    {
-        $check = array_filter(
-            $arr,
-            function ($value) {
-                return $value instanceof FormatRule;
-            }
-        );
-        return count($check) > 0;
     }
 
     /**
@@ -93,7 +70,7 @@ class SpreadSheet
     /**
      * Get associated metadata.
      *
-     * @return Parambag
+     * @return array
      */
     public function getMeta()
     {
@@ -105,8 +82,24 @@ class SpreadSheet
      *
      * @param $meta
      */
-    public function setMeta(Parambag $meta)
+    public function setMeta(array $meta)
     {
         $this->meta = $meta;
+    }
+
+    /**
+     * @param array $rule
+     */
+    public function addRule(array $rule)
+    {
+        $this->formatRules[] = $rule;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFormatRules()
+    {
+        return $this->formatRules;
     }
 }

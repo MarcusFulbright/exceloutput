@@ -23,20 +23,19 @@ class ExcelWorkbook
     /**
      * Repository for all extra meta data.
      *
-     * @var Parambag
+     * @var array
      */
     protected $meta;
 
     /**
-     * @param array    $sheets
-     * @param Parambag $meta
+     * @param array $sheets
+     * @param array $meta
      */
-    public function __construct(array $sheets = null, Parambag $meta = null)
+    public function __construct(array $sheets = null, array $meta = array())
     {
         if ($this->validateSheets($sheets)) {
             $this->sheets = $sheets;
         }
-        $this->meta = ($meta != null ? $meta : new Parambag());
     }
 
     /**
@@ -81,7 +80,7 @@ class ExcelWorkbook
     /**
      * Returns the Parambag object that contains any meta data associated with the workbook.
      *
-     * @return Parambag
+     * @return array
      */
     public function getMeta()
     {
@@ -89,11 +88,11 @@ class ExcelWorkbook
     }
 
     /**
-     * Sets the given Parambag as the workbooks metadata.
+     * Sets the given array as the workbooks metadata.
      *
-     * @param \mbright\ExcelOutput\Parambag $meta
+     * @param array $meta
      */
-    public function setMeta(Parambag $meta)
+    public function setMeta(array $meta)
     {
         $this->meta = $meta;
     }

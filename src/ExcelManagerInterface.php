@@ -4,7 +4,7 @@ namespace mbright\ExcelOutput;
 /**
  * Interface ExcelManagerInterface
  *
- * The glue between formatters and adapters, the one class your app needs to interact with.
+ * The glue between formatters and adapters, the one class your app needs to interact with
  *
  * @package mbright\ExcelOutput
  */
@@ -13,8 +13,8 @@ interface ExcelManagerInterface
     /**
      * Ensures the injection of the required adapter and optional formatter.
      *
-     * @param ExcelAdapterInterface   $adapter
-     * @param ExcelFormatterInterface $formatter
+     * @param ExcelAdapterInterface        $adapter
+     * @param null|ExcelFormatterInterface $formatter
      */
     public function __construct(ExcelAdapterInterface $adapter, ExcelFormatterInterface $formatter = null);
 
@@ -35,25 +35,25 @@ interface ExcelManagerInterface
      * Creates and returns a new ExcelWorkbook object.
      *
      * All items in the $sheets array should be instances of SpreadSheet. It's smart to check this in your adapter. You
-     * can also validate the contents of the $meta Parambag if desired.
+     * can also validate the contents of the $meta array if desired.
      *
      * @param  array    $sheets
-     * @param  Parambag $meta
+     * @param  array $meta
      * @return ExcelWorkbook
      */
-    public function newWorkbook(array $sheets, Parambag $meta = null);
+    public function newWorkbook(array $sheets, array $meta = array());
 
     /**
      * Creates a new sheet from the provided data and meta-data.
      *
      * Please note that each entry in the array represents a row. In your implementation, it might be smart to check the
-     * contents of the $meta Parambag.
+     * contents of the $meta array.
      *
      * @param array    $data
-     * @param Parambag $meta
+     * @param array $meta
      * @return SpreadSheet
      */
-    public function newSheet(array $data, Parambag $meta = null);
+    public function newSheet(array $data, array $meta = array());
 
     /**
      * Contains all logic for applying format rules.
