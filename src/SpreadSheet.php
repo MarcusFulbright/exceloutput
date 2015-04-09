@@ -40,11 +40,22 @@ class SpreadSheet
      * @param array $meta
      * @param array $formatRules
      */
-    public function __construct(array $data = null, array $meta = null, array $formatRules = null)
+    public function __construct(array $data = [], array $meta = [], array $formatRules = [])
     {
-        if ($data != null) {
-            $this->data = $data;
+        if (! empty($formatRules)) {
+            $exceptions = array_filter(
+                $formatRules,
+                function ($rule) {
+                    return ! $rule instanceof FormatRule;
+                }
+            );
+            if (count($exceptions) > 0) {
+                throw new \InvalidArgumentException('formatRules array can only contain FormatRule Objects');
+            }
         }
+        $this->data        = $data;
+        $this->meta        = $meta;
+        $this->formatRules = $formatRules;
     }
 
     /**
@@ -88,9 +99,9 @@ class SpreadSheet
     }
 
     /**
-     * @param array $rule
+     * @param FormatRule $rule
      */
-    public function addRule(array $rule)
+    public function addRule(FormatRule $rule)
     {
         $this->formatRules[] = $rule;
     }
@@ -101,5 +112,23 @@ class SpreadSheet
     public function getFormatRules()
     {
         return $this->formatRules;
+    }
+
+    /**
+     * @throws \InvalidArgumentException When array does not contain only FormatRule objects
+     * @param array $formatRules contains only FormatRule objects
+     */
+    public function setFormatRules(array $formatRules)
+    {
+        $exceptions = array_filter(
+                $formatRules,
+                function ($rule) {
+                    return ! $rule instanceof FormatRule;
+                }
+            );
+        if (count($exceptions) > 0) {
+            throw new \InvalidArgumentException('formatRules array can only contain FormatRule Objects');
+        }
+        $this->formatRules = $formatRules;
     }
 }

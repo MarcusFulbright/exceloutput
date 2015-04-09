@@ -27,7 +27,7 @@ class FormatRule
      * @param null $range
      * @param array $rules
      */
-    public function __construct($range = null, $rules = array())
+    public function __construct($range = null, array $rules = [])
     {
         $this->range = $range;
         $this->rules = $rules;
@@ -60,7 +60,7 @@ class FormatRule
     /**
      * @param array $rules
      */
-    public function setRules($rules)
+    public function setRules(array $rules)
     {
         $this->rules = $rules;
     }

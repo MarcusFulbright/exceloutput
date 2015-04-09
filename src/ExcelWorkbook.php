@@ -31,11 +31,13 @@ class ExcelWorkbook
      * @param array $sheets
      * @param array $meta
      */
-    public function __construct(array $sheets = null, array $meta = array())
+    public function __construct(array $sheets = [], array $meta = [])
     {
-        if ($this->validateSheets($sheets)) {
-            $this->sheets = $sheets;
+        if (! empty($sheets) && ! $this->validateSheets($sheets)) {
+            throw new \InvalidArgumentException('$sheets can only contain SpreadSheet objects');
         }
+        $this->sheets = $sheets;
+        $this->meta = $meta;
     }
 
     /**
