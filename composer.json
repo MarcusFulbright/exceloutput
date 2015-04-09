@@ -19,7 +19,7 @@
     "minimum-stability": "stable",
     "autoload" : {
          "psr-4": {
-         "Mbright\\ExcelOutput\\": "src/"
+         "mbright\\ExcelOutput\\": "src/"
        }
      }
 }
