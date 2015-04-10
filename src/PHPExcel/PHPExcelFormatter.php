@@ -1,5 +1,7 @@
 <?php
-namespace ExcelOutput\PHPExcel;
+namespace mbright\ExcelOutput\PHPExcel;
+
+use ExcelOutput\PHPExcel\PHPExcelAdapter;
 use mbright\ExcelOutput\ExcelFormatterInterface;
 use mbright\ExcelOutput\SpreadSheet;
 use mbright\ExcelOutput\FormatRule;
@@ -28,7 +30,7 @@ class PHPExcelFormatter implements  ExcelFormatterInterface
                     $target->getStyle($range)->applyFromArray($rule->getRules());
                     break;
                 case ($rule->getType() === 'numFormat'):
-                    $target->getStyle($range)->getNumberFormat()->setFormatCode();
+                    $target->getStyle($range)->getNumberFormat()->setFormatCode($rule->getRules()[0]);
             }
         }
         return $target;
@@ -44,20 +46,25 @@ class PHPExcelFormatter implements  ExcelFormatterInterface
      */
     private function sanitizeColumns(\PHPExcel_Worksheet $sheet, $range)
     {
-        //Should be able to handle B and B:N and still work with B7:N5.
-        if (preg_match("/^[a-z]+[\d]*($|:([a-z]+[\d]*$))/i", $range) === 0) {
-            throw new \Exception($range . " is not a parseable columns selection.");
+        $columns = explode(':', $range);
+        $count = count($columns);
+        $regex = "/^\D+\d+$/";
+        if ($count == 1 && preg_match($regex, $columns[0]) === 0) {
+            $columns[1] = $columns[0];
         }
-        $columnarray = explode(':', $range);
-        if (preg_match("/[\d]/", $columnarray[0]) === 0) {
-            $columnarray[0] .= "1";
+        foreach ($columns as $position => &$column) {
+            $hasInt = preg_match($regex, $column) === 1;
+            $needsFirstCell = $position === 0 && ! $hasInt;
+            $needsLastCell = $position === 1 && ! $hasInt;
+            switch (true) {
+                case $needsFirstCell:
+                    $column .= '1';
+                    break;
+                case $needsLastCell:
+                    $column .= $sheet->getHighestRow($column);
+                    break;
+            }
         }
-        if (isset($columnarray[1]) === false) {
-            $columnarray[1] = preg_replace("/[\d]/", "", $columnarray[0]);
-        }
-        if (preg_match("/[\d]/", $columnarray[1]) === 0) {
-            $columnarray[1] .= $sheet->getHighestRow();
-        }
-        return implode(':', $columnarray);
+        return implode(':', $columns);
     }
 }

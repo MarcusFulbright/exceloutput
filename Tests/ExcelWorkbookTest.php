@@ -1,7 +1,6 @@
 <?php
 namespace ExcelOutput\Test;
 use mbright\ExcelOutput\ExcelWorkbook;
-use mbright\ExcelOutput\SpreadSheet;
 
 /**
  * Test ExcelWorkbookTest

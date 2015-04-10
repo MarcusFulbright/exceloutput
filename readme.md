@@ -13,6 +13,8 @@ This library makes use of the [adapter pattern](http://en.wikipedia.org/wiki/Ada
     * `A1`: single cell
     * `A1:A8`: range of cells
     * `A:C`: range of columns
+    * `A`: single Column
+    * `A2:B || A:B4`: cell to entire column or vice versa
 *Please note that it is best to only have one FormatRule object per range.*
 
 ## Usage
