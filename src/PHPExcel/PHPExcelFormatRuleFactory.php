@@ -1,5 +1,6 @@
 <?php
 namespace mbright\ExcelOutput\PHPExcel;
+
 use mbright\ExcelOutput\FormatRule;
 
 /**

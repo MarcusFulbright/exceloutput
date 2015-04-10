@@ -1,5 +1,6 @@
 <?php
 namespace ExcelOutput\Test;
+
 use mbright\ExcelOutput\ExcelWorkbook;
 
 /**
