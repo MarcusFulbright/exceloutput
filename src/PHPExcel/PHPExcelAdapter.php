@@ -86,7 +86,7 @@ class PHPExcelAdapter implements ExcelAdapterInterface
         }
         $writer = $this->getWriterForFormat($format, $phpExcel);
         $filePath = isset($workbook->getMeta()['filePath']) ? $workbook->getMeta()['filePath'] : null;
-        $writer->save($workbook->$filePath);
+        $writer->save($filePath);
         return $phpExcel;
     }
 
@@ -110,26 +110,40 @@ class PHPExcelAdapter implements ExcelAdapterInterface
      */
     protected function handleWorkbookMetaData(ExcelWorkbook $workbook, \PHPExcel $PHPExcel)
     {
-        $meta = $workbook->getMeta();
-        switch (true) {
-            case isset($meta[self::CREATOR]):
-                $PHPExcel->getProperties()->setCreator($meta[self::CREATOR]);
-            case isset($meta[self::LAST_MODIFIED_BY]):
-                $PHPExcel->getProperties()->setLastModifiedBy($meta[self::LAST_MODIFIED_BY]);
-            case isset($meta[self::TITLE]):
-                $PHPExcel->getProperties()->setTitle($meta[self::TITLE]);
-            case isset($meta[self::SUBJECT]):
-                $PHPExcel->getProperties()->setSubject($meta[self::SUBJECT]);
-            case isset($meta[self::DESCRIPTION]):
-                $PHPExcel->$meta[self::DESCRIPTION];
-            case isset($meta[self::KEYWORDS]):
-                $PHPExcel->getProperties()->setKeywords(explode(' ', $meta[self::KEYWORDS]));
-            case isset($meta[self::CATEGORES]):
-                $PHPExcel->getProperties()->setCategory(explode(' ', $meta[self::CATEGORES]));
+        foreach ($workbook->getMeta() as $meta) {
+            switch (true) {
+                case isset($meta[self::CREATOR]):
+                    $PHPExcel->getProperties()->setCreator($meta[self::CREATOR]);
+                    break;
+                case isset($meta[self::LAST_MODIFIED_BY]):
+                    $PHPExcel->getProperties()->setLastModifiedBy($meta[self::LAST_MODIFIED_BY]);
+                    break;
+                case isset($meta[self::TITLE]):
+                    $PHPExcel->getProperties()->setTitle($meta[self::TITLE]);
+                    break;
+                case isset($meta[self::SUBJECT]):
+                    $PHPExcel->getProperties()->setSubject($meta[self::SUBJECT]);
+                    break;
+                case isset($meta[self::DESCRIPTION]):
+                    $PHPExcel->$meta[self::DESCRIPTION];
+                    break;
+                case isset($meta[self::KEYWORDS]):
+                    $PHPExcel->getProperties()->setKeywords(explode(' ', $meta[self::KEYWORDS]));
+                    break;
+                case isset($meta[self::CATEGORIES]):
+                    $PHPExcel->getProperties()->setCategory(explode(' ', $meta[self::CATEGORIES]));
+            }
         }
         return $PHPExcel;
     }
 
+    /**
+     * Gets the proper PHPExcel Writer based on the format
+     *
+     * @param $format
+     * @param $phpExcel
+     * @return \PHPExcel_Writer_CSV|\PHPExcel_Writer_Excel2007|\PHPExcel_Writer_Excel5
+     */
     protected function getWriterForFormat($format, $phpExcel)
     {
         switch (true) {
@@ -148,7 +162,7 @@ class PHPExcelAdapter implements ExcelAdapterInterface
         return $writer;
     }
 
-        /**
+    /**
      * Returns an array of all supported formats.
      *
      * @return array

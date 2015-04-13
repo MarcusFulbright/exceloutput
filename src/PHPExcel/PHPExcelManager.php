@@ -62,10 +62,15 @@ class PHPExcelManager implements ExcelManagerInterface
 
     /**
      * @param SpreadSheet $sheet
+     * @throws \BadMethodCallException When the manager does not have a formatter
      * @return mixed
      */
     public function formatSheet(SpreadSheet $sheet)
     {
+        if (! $this->formatter) {
+            throw new \BadMethodCallException('The formatSheet Method requires the manager to have a formatter');
+        }
+
         return $this->formatter->applyRules($sheet);
     }
 
