@@ -1,5 +1,5 @@
 <?php
-namespace ExcelOutput\PHPExcel;
+namespace mbright\ExcelOutput\PHPExcel;
 
 use mbright\ExcelOutput\ExcelAdapterInterface;
 use mbright\ExcelOutput\ExcelFormatterInterface;
