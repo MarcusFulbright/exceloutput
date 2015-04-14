@@ -1,7 +1,6 @@
 <?php
 namespace mbright\ExcelOutput\PHPExcel;
 
-use ExcelOutput\PHPExcel\PHPExcelAdapter;
 use mbright\ExcelOutput\ExcelFormatterInterface;
 use mbright\ExcelOutput\SpreadSheet;
 use mbright\ExcelOutput\FormatRule;

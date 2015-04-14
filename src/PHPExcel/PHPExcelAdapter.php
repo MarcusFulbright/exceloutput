@@ -1,5 +1,5 @@
 <?php
-namespace ExcelOutput\PHPExcel;
+namespace mbright\ExcelOutput\PHPExcel;
 
 use mbright\ExcelOutput\ExcelAdapterInterface;
 use mbright\ExcelOutput\ExcelFormatterInterface;
@@ -43,21 +43,26 @@ class PHPExcelAdapter implements ExcelAdapterInterface
     const CATEGORIES = 'categories';
 
     /** @var array */
-    protected $formats = array(
+    protected $formats = [
         self::XLSX,
         self::XLS,
         self::CSV
-    );
+    ];
 
     /** @var ExcelFormatterInterface */
     protected $formatter;
 
+    /** @var PHPExcelFactory */
+    protected $factory;
+
     /**
      * @param ExcelFormatterInterface $formatter
+     * @param PHPExcelFactory $factory
      */
-    public function __construct(ExcelFormatterInterface $formatter)
+    public function __construct(ExcelFormatterInterface $formatter, PHPExcelFactory $factory)
     {
         $this->formatter = $formatter;
+        $this->factory   = $factory;
     }
 
     /**
@@ -78,15 +83,17 @@ class PHPExcelAdapter implements ExcelAdapterInterface
         if (! $this->supportsFormat($format)) {
             throw new \InvalidArgumentException('The given format is not supported');
         }
-        $phpExcel = new \PHPExcel();
+        $phpExcel = $this->factory->newPHPExcel();
         $this->handleWorkbookMetaData($workbook, $phpExcel);
         /** @var SpreadSheet $sheet */
         foreach ($workbook->getSheets() as $sheet) {
             $phpExcel->addSheet($this->formatter->applyRules($sheet));
         }
-        $writer = $this->getWriterForFormat($format, $phpExcel);
-        $filePath = isset($workbook->getMeta()['filePath']) ? $workbook->getMeta()['filePath'] : null;
-        $writer->save($filePath);
+        if ($write === true) {
+            $writer   = $this->factory->newWriter($format, $phpExcel);
+            $filePath = isset($workbook->getMeta()['filePath']) ? $workbook->getMeta()['filePath'] : null;
+            $writer->save($filePath);
+        }
         return $phpExcel;
     }
 
@@ -125,41 +132,16 @@ class PHPExcelAdapter implements ExcelAdapterInterface
                     $PHPExcel->getProperties()->setSubject($meta[self::SUBJECT]);
                     break;
                 case isset($meta[self::DESCRIPTION]):
-                    $PHPExcel->$meta[self::DESCRIPTION];
+                    $PHPExcel->getProperties()->setDescription($meta[self::DESCRIPTION]);
                     break;
                 case isset($meta[self::KEYWORDS]):
-                    $PHPExcel->getProperties()->setKeywords(explode(' ', $meta[self::KEYWORDS]));
+                    $PHPExcel->getProperties()->setKeywords(implode(', ', $meta[self::KEYWORDS]));
                     break;
                 case isset($meta[self::CATEGORIES]):
-                    $PHPExcel->getProperties()->setCategory(explode(' ', $meta[self::CATEGORIES]));
+                    $PHPExcel->getProperties()->setCategory(implode(', ', $meta[self::CATEGORIES]));
             }
         }
         return $PHPExcel;
-    }
-
-    /**
-     * Gets the proper PHPExcel Writer based on the format
-     *
-     * @param $format
-     * @param $phpExcel
-     * @return \PHPExcel_Writer_CSV|\PHPExcel_Writer_Excel2007|\PHPExcel_Writer_Excel5
-     */
-    protected function getWriterForFormat($format, $phpExcel)
-    {
-        switch (true) {
-            case $format === self::XLSX:
-                $writer =  new \PHPExcel_Writer_Excel2007($phpExcel);
-                break;
-            case $format === self::XLS:
-                $writer = new \PHPExcel_Writer_Excel5($phpExcel);
-                break;
-            case $format === self::CSV:
-                $writer = new \PHPExcel_Writer_CSV($phpExcel);
-                break;
-            default:
-                throw new \InvalidArgumentException('the given format is not supported');
-        }
-        return $writer;
     }
 
     /**
@@ -195,7 +177,6 @@ class PHPExcelAdapter implements ExcelAdapterInterface
      */
     public function setCacheStrategy($method, array $options = array())
     {
-        \PHPExcel_Settings::setCacheStorageMethod($method, $options);
-        return true;
+        return \PHPExcel_Settings::setCacheStorageMethod($method, $options);
     }
 }
