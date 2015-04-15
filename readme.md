@@ -19,7 +19,7 @@ This library makes use of the [adapter pattern](http://en.wikipedia.org/wiki/Ada
 
 ## Usage
 
-Generally speaking your workflow will probably look like this:
+Generally speaking your work-flow will probably look like this:
 
 * Instantiate your `adapter`
 * Instantiate a `manager` and pass it the `adapter`
@@ -71,17 +71,33 @@ Sometimes the code required to add format rules to spreadsheets and workbooks ca
 
 Should you want to build one, it must use the `ExcelOutput\Formatters\ExcelFormatterInterface` which guarantees the following behavior:
 
-* `applyRules(ExcelOutput\SpreadSheet $sheet, $target = null`: applies the rules that apply to the given $sheet
+* `applyRules(ExcelOutput\SpreadSheet $sheet, $target = null)`: applies the rules that apply to the given $sheet
 
 > If you need to inject an object from another library, like a PHPExcel,you can pass that object in as the $target.
 
 ## PHPExcel Integration
 
-Out of the box, you can start working with `PHPExcel` right away. The included `ExcelOutput\PHPExcel` folder has an adapter, formatter, and an abstract manager you can use. Some things to note when using the PHPExcel file:
+Out of the box, you can start working with `PHPExcel` right away. The included `ExcelOutput\PHPExcel\` folder has an adapter, formatter, and an abstract manager you can use. Some things to note when using the PHPExcel file:
 
-### PHPExcel Formatter / Adapter
+### PHPExcel Components
 
-Because of the way PHPExcel works, an instance of `ExcelOutput\PHPExcel\PHPExcelFormatter` is required by the adapter. PHPExcel itself requires the proprietary PHPExcel object to get instantiated before applying format rules. This means that the `ExcelOutput\PHPExcel\PHPExcelAdapter` **requires** the formatter. Additionally, the `ExcelOutput\PHPExcel\PHPExcelManager` also **requires** a formatter to fulfill all of its obligations Simply instantiate the formatter first and pass it to both constructors:
+### Factory
+
+The `ExcelOutput\PHPExcel\PHPexcelFactory` is used to create objects specific to PHPExcel. This is only mean to be used internally, However, you will have to inject the dependency where required.
+
+#### Formatter
+
+PHPExcel applies format rules to its own proprietary PHPExcel object. The `ExcelOutput\PHPExcel\PHPExcelFormatter` contains all of the logic required to apply format rules. You do not need to interact with this class directly, just inject it as a dependency when required.
+
+#### Adapter
+
+
+
+#### Adapter
+
+
+
+Because of the way PHPExcel works, an instance of `ExcelOutput\PHPExcel\PHPExcelFormatter` is required by the adapter. PHPExcel itself requires the proprietary PHPExcel object to get instantiated before applying format rules. This means that the `ExcelOutput\PHPExcel\PHPExcelAdapter` **requires** the formatter.Additionally, the `ExcelOutput\PHPExcel\PHPExcelManager` also **requires** a formatter to fulfill all of its obligations Simply instantiate the formatter first and pass it to both constructors:
 
 ```php
 $formatter = new PHPExcelFormatter();

@@ -50,6 +50,16 @@ class PHPExcelManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->formatSheet($sheet);
     }
 
+    public function testFormatSheetException()
+    {
+        $manager = new PHPExcelManager($this->adapter);
+        $this->setExpectedException(
+            'BadMethodCallException',
+            'The formatSheet Method requires the manager to have a formatter'
+        );
+        $manager->formatSheet(\Mockery::mock('mbright\ExcelOutput\SpreadSheet'));
+    }
+
     public function testAddSheetToWorkBook()
     {
         $workbook = \Mockery::mock('mbright\ExcelOutput\ExcelWorkbook');
