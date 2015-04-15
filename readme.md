@@ -77,7 +77,17 @@ Should you want to build one, it must use the `ExcelOutput\Formatters\ExcelForma
 
 ## PHPExcel Integration
 
-Out of the box, you can start working with `PHPExcel` right away. The included `ExcelOutput\PHPExcel\` folder has an adapter, formatter, and an abstract manager you can use. Some things to note when using the PHPExcel file:
+Out of the box, you can start working with `PHPExcel` right away. The included `ExcelOutput\PHPExcel\` folder has an adapter, formatter, and an abstract manager you can use. Example:
+
+```php
+$factory = new PHPExcelFactory();
+$formatter = new PHPExcelFormatter();
+$adapter = new PHPExcelAdapter($formatter, $factory);
+
+$manager = new PHPExcelManager($adapter, $formatter[optional]);
+
+```
+
 
 ### PHPExcel Components
 
@@ -91,22 +101,13 @@ PHPExcel applies format rules to its own proprietary PHPExcel object. The `Excel
 
 #### Adapter
 
+All constants used by `ExcelOutput` that pertain to PHPExcel  live in the `ExcelOutput\PHPExcel\PHPExcelAdapter`. The Adapter **requires** a `PHEPxcelFormatter` and a `PHPExcelFactory` for instantiation.
 
+#### Manager
 
-#### Adapter
+The `ExcelOutput\PHPExcel\PHPExcelManager` is the class your application should interact with. This class **requires** a `PHPExcelAdapter`. Optionally, it can take a `PHPExcelFormatter` as a second argument. The `FormatSheet` method will only work if a formatter is present. 
 
-
-
-Because of the way PHPExcel works, an instance of `ExcelOutput\PHPExcel\PHPExcelFormatter` is required by the adapter. PHPExcel itself requires the proprietary PHPExcel object to get instantiated before applying format rules. This means that the `ExcelOutput\PHPExcel\PHPExcelAdapter` **requires** the formatter.Additionally, the `ExcelOutput\PHPExcel\PHPExcelManager` also **requires** a formatter to fulfill all of its obligations Simply instantiate the formatter first and pass it to both constructors:
-
-```php
-$formatter = new PHPExcelFormatter();
-$adapter = new PHPExcelAdapter($formatter);
-// you can use a different formatter instance, or another object that implements the correct interface if you choose. 
-$manager = new PHPExcelManager($adapter, $formatter);
-```
-
-### PHPExcel Format Rules
+#### FormatRule Factory
 
 PHPExcel uses different methods to set different style rules. As a result, the `Excloutput\PHPExcel\PHPExcelFormatter` expects each format rule to have the correct `$type` attribute. To make things easier, a `ExcelOutput\PHPExcel\FormatRuleFactory` was included that allows you to create correctly configured formatting rules. Each method accepts a range and style argument. In all cases, the range must be a valid Excel column / cell range. The style argument must be applicable to the context of the called method:
 
